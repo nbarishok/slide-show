@@ -6,6 +6,10 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -17,20 +21,21 @@ import com.test.slideshow.animations.AnimUtils;
 import com.test.slideshow.models.LoadBitmapViewModel;
 import com.test.slideshow.receivers.AlarmReceiver;
 import com.test.slideshow.receivers.ChargingReceiver;
+import com.test.slideshow.tasks.AsyncListener;
 import com.test.slideshow.tasks.AsyncLoadBitmap;
-import com.test.slideshow.tasks.LoadImageUrisFromSDCard;
 import com.test.slideshow.models.AsyncTag;
 import com.test.slideshow.utilities.Auxiliary;
 import com.test.slideshow.utilities.DirectoryChooserDialog;
 import com.test.slideshow.utilities.preferences.Prefs;
 
 import java.util.ArrayList;
+import java.util.List;
 
 
 /**
 
  */
-public class SlideShowActivity extends Activity {
+public class SlideShowActivity extends FragmentActivity implements AsyncListener<List<String>> {
 
     private boolean mForceStartShow = false;
     private boolean mForceStopShow = false;
@@ -66,11 +71,12 @@ public class SlideShowActivity extends Activity {
     private int mCurrentInterval; //persisted in sharedpreferences
     private int mCurrentIndex=0; // -> in bundle
 
-    private ArrayList<String> mUris = null; // -> in bundle
+    private List<String> mUris = null; // -> in bundle
 
     private int mIvWidth, mIvHeight;
 
     Handler timerHandler = new Handler();
+    private boolean mDetachPending = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -140,11 +146,17 @@ public class SlideShowActivity extends Activity {
     @Override
     public void onResume(){
         super.onResume();
+        IS_ACTIVE = true;
+
+        if (mDetachPending)
+        {
+            detachTask();
+        }
         mDirsChooser.setOnClickListener(dirsListener);
         mSettingsLauncher.setOnClickListener(settingsLauncher);
 
         if (mUris == null)
-            loadImageUris(postAction);
+            loadImageUris();
         else
             resumeSlideShow();
         mIvHeight = mSlideShow.getMeasuredHeight();
@@ -155,6 +167,7 @@ public class SlideShowActivity extends Activity {
     public void onPause()
     {
         super.onPause();
+        IS_ACTIVE = false;
         mDirsChooser.setOnClickListener(null);
         mSettingsLauncher.setOnClickListener(null);
         pauseSlideShow();
@@ -163,14 +176,14 @@ public class SlideShowActivity extends Activity {
     @Override
     public void onStop()
     {
-        IS_ACTIVE = false;
+
         super.onStop();
     }
 
     @Override
     public void onStart()
     {
-        IS_ACTIVE = true;
+
         super.onStart();
     }
 
@@ -252,7 +265,7 @@ public class SlideShowActivity extends Activity {
                                 @Override
                                 public void onChosenDir(String chosenDir) {
                                     Prefs.setDir(SlideShowActivity.this, chosenDir);
-                                    loadImageUris(null);
+                                    loadImageUris();
                                     Toast.makeText(
                                             SlideShowActivity.this, "Текущая директория: " +
                                                     chosenDir, Toast.LENGTH_SHORT).show();
@@ -365,17 +378,28 @@ public class SlideShowActivity extends Activity {
     }
 
 
-    private void loadImageUris(Runnable postAction) {
+    private void loadImageUris() {
 
         if (!Auxiliary.checkStorageAvailable(SlideShowActivity.this)){
             Toast.makeText(SlideShowActivity.this, "Внешняя память недоступна, в настройках выберите внутреннюю", Toast.LENGTH_LONG).show();
             return;
         }
 
+        FragmentManager fm = getSupportFragmentManager();
+        TaskFragment fragment =
+                (TaskFragment)fm.findFragmentByTag("task");
+        if (fragment == null) {
+            fragment = new TaskFragment();
+            Bundle args = new Bundle();
+            args.putParcelable(TaskFragment.TASK_INPUT_KEY, Prefs.getQueryViewModel(this));
+            fragment.setArguments(args);
+            FragmentTransaction transaction = fm.beginTransaction();
+            transaction.add(fragment, "task").commit();
+        }
+
+
         hideIfVisible(mLlBottom, true);
         stopSlideShow();
-        LoadImageUrisFromSDCard mLoadUrisTask = new LoadImageUrisFromSDCard(this, postAction);
-        mLoadUrisTask.execute(Prefs.getQueryViewModel(this));
     }
 
     private void hideIfVisible(ViewGroup viewGroup, boolean isMovingBottom) {
@@ -389,7 +413,7 @@ public class SlideShowActivity extends Activity {
         AnimUtils.hardwareTranslationYOrigin(viewGroup);
     }
 
-    public void onLoadedUris(ArrayList<String> res, Exception ex){
+    public void onLoadedUris(List<String> res, Exception ex){
         if (ex != null)
         {
             //TODO add adequate logic
@@ -468,5 +492,22 @@ public class SlideShowActivity extends Activity {
                 }
             }
         }
+    }
+
+    @Override
+    public void onPostExecute(List<String> strings, Exception exception) {
+        onLoadedUris(strings, exception);
+        if (IS_ACTIVE){
+            detachTask();
+        }
+        else mDetachPending = true;
+        resumeSlideShow();
+    }
+
+    private void detachTask(){
+        FragmentManager fm = getSupportFragmentManager();
+        Fragment fragment = fm.findFragmentByTag("task");
+        fm.beginTransaction().remove(fragment).commit();
+        mDetachPending = false;
     }
 }

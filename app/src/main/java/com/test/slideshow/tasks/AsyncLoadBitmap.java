@@ -26,7 +26,6 @@ public class AsyncLoadBitmap extends AsyncTask<LoadBitmapViewModel, Object, Bitm
     public  AsyncLoadBitmap(SlideShowActivity context, ImageView iv){
         mContext = context;
         mImageViewReference = new WeakReference<ImageView>(iv);
-
     }
 
     /**
