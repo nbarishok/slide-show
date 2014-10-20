@@ -6,11 +6,9 @@ import android.net.Uri;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
-
 import com.test.slideshow.R;
 import com.test.slideshow.models.QueryViewModel;
 
-import java.util.Date;
 
 /**
  * Created by Nikita on 17.10.2014.
@@ -29,9 +27,8 @@ public class Prefs {
 
     public static boolean getIsInited(Context context){
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        Boolean isInited = prefs.getBoolean(PREFS_IS_INITED, false);
 
-        return isInited;
+        return prefs.getBoolean(PREFS_IS_INITED, false);
     }
 
     public static void setIsInited(Context context, boolean value, String dir){
@@ -88,14 +85,11 @@ public class Prefs {
 
     public static int getInterval(Context context) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        int interval = prefs.getInt(context.getString(R.string.interval_key), 5);
 
-        return interval;
+        return prefs.getInt(context.getString(R.string.interval_key), 5);
     }
 
     public static QueryViewModel getQueryViewModel(Context context){
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-
         Uri uri = isExternalDirNow(context) ? MediaStore.Images.Media.EXTERNAL_CONTENT_URI : MediaStore.Images.Media.INTERNAL_CONTENT_URI;
         String folder = getDir(context);
         return  new QueryViewModel(uri, folder);

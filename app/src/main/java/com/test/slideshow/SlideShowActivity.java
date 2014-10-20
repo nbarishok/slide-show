@@ -374,7 +374,7 @@ public class SlideShowActivity extends Activity {
 
         hideIfVisible(mLlBottom, true);
         stopSlideShow();
-        mLoadUrisTask = new LoadImageUrisFromSDCard(this, postAction);
+        LoadImageUrisFromSDCard mLoadUrisTask = new LoadImageUrisFromSDCard(this, postAction);
         mLoadUrisTask.execute(Prefs.getQueryViewModel(this));
     }
 
@@ -388,8 +388,6 @@ public class SlideShowActivity extends Activity {
         if (viewGroup.getVisibility() == View.GONE) return;
         AnimUtils.hardwareTranslationYOrigin(viewGroup);
     }
-
-    private LoadImageUrisFromSDCard mLoadUrisTask;
 
     public void onLoadedUris(ArrayList<String> res, Exception ex){
         if (ex != null)
@@ -405,7 +403,7 @@ public class SlideShowActivity extends Activity {
     }
 
     private void updateDirDescription(){
-        String updateText = new StringBuilder().append(getString(R.string.current_dir_title)).append(Prefs.getDir(this)).toString();
+        String updateText = getString(R.string.current_dir_title) + Prefs.getDir(this);
         mTvFolderName.setText(updateText);
     }
 
@@ -419,10 +417,10 @@ public class SlideShowActivity extends Activity {
     private void handleIntent(Intent intent){
 
         //handling case when app is being launched from history
-        boolean launchedFromHistory = intent != null ? (intent.getFlags() & Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY) != 0 : false;
+        boolean launchedFromHistory = intent != null && (intent.getFlags() & Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY) != 0;
         if (launchedFromHistory) return;
 
-        long tempStamp = -1;
+        long tempStamp;
         if (intent.hasExtra(AlarmReceiver.TIMESTAMP_KEY))
         {
             tempStamp = intent.getExtras().getLong(AlarmReceiver.TIMESTAMP_KEY);
@@ -432,7 +430,7 @@ public class SlideShowActivity extends Activity {
 
         String action = intent.getAction();
 
-        if (action == AlarmReceiver.ALARM_CUSTOM_ACTION) //we are interested only in AlarmReceivers' actions
+        if (action.equals(AlarmReceiver.ALARM_CUSTOM_ACTION)) //we are interested only in AlarmReceivers' actions
         {
 
             Bundle bundle = intent.getExtras();
@@ -442,31 +440,31 @@ public class SlideShowActivity extends Activity {
                 if (actionInt == 1)
                 {
                     mForceStartShow = true;
-                    Toast.makeText(this, "Запуск слайд-шоу по таймеру", Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, getString(R.string.launch_timer), Toast.LENGTH_LONG).show();
                 }
                 else if (actionInt == -1){
                     {
                         mForceStopShow = true;
-                        Toast.makeText(this, "Остановка слайд-шоу по таймеру", Toast.LENGTH_LONG).show();
+                        Toast.makeText(this, getString(R.string.stop_timer), Toast.LENGTH_LONG).show();
                     }
                 }
             }
             else if (bundle.keySet().contains(AlarmReceiver.BOOT_COMPETED_KEY)){
                 mForceStartShow = true;
-                Toast.makeText(this, "Запуск слайд-шоу по окончанию загрузки", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, getString(R.string.launch_booted), Toast.LENGTH_LONG).show();
             }
         }
-        else if (action == ChargingReceiver.POWER_CONNECTED){
+        else if (action.equals(ChargingReceiver.POWER_CONNECTED)){
             Bundle bundle = intent.getExtras();
             if (bundle.keySet().contains(ChargingReceiver.IS_CONNECTED)){
                 int actionInt = bundle.getInt(ChargingReceiver.IS_CONNECTED);
                 if (actionInt == 1) {
                     mForceStartShow = true;
-                    Toast.makeText(this, "Запуск слайд-шоу по началу зарядки", Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, getString(R.string.launch_power_on), Toast.LENGTH_LONG).show();
                 }
                 else if (actionInt == -1){
                     mForceStopShow = true;
-                    Toast.makeText(this, "Остановка слайд-шоу по окончанию зарядки", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, getString(R.string.launch_power_off), Toast.LENGTH_SHORT).show();
                 }
             }
         }

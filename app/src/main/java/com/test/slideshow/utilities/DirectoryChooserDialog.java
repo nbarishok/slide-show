@@ -226,6 +226,7 @@ public class DirectoryChooserDialog
         }
         catch (Exception e)
         {
+            //TODO there should be handling logic
         }
 
         Collections.sort(dirs, new Comparator<DirModel>()
@@ -251,7 +252,7 @@ public class DirectoryChooserDialog
         titleLayout.setOrientation(LinearLayout.VERTICAL);
 
         mTitleView = new TextView(mContext);
-        mTitleView.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
+        mTitleView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
         mTitleView.setTextAppearance(mContext, android.R.style.TextAppearance_Large);
         mTitleView.setTextColor(mContext.getResources().getColor(R.color.white_overlay));
         mTitleView.setBackgroundColor(mContext.getResources().getColor(R.color.black_overlay));
@@ -260,7 +261,7 @@ public class DirectoryChooserDialog
         updateTitleWithPicsNumber(title);
 
         Button newDirButton = new Button(mContext);
-        newDirButton.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
+        newDirButton.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
         newDirButton.setText("New folder");
         newDirButton.setOnClickListener(new View.OnClickListener()
         {
@@ -334,7 +335,7 @@ public class DirectoryChooserDialog
     private void updateTitleWithPicsNumber(String title){
 
         Uri uri = Prefs.isExternalDirNow(mContext) ? MediaStore.Images.Media.EXTERNAL_CONTENT_URI : MediaStore.Images.Media.INTERNAL_CONTENT_URI;
-        String formedArg = new StringBuilder().append("%").append(mDir).append("%").toString();
+        String formedArg = "%" + mDir + "%";
         String[] projection = {MediaStore.Images.Media.DATA};
         String[] selection = new String[]{formedArg};
         Cursor imageCursor = Auxiliary.getImageCursorForDir(mContext, uri, projection, selection);

@@ -12,6 +12,11 @@
     <string name="current_dir_title">Текущая директория: \n  </string>
     <string name="do_slide">НАЧАТЬ</string>
     <string name="stop_slide">Стоп</string>
-    <string name="empty_dir"> <i>Это корневая директория</i> </string>
+    <string name="empty_dir"> <i>Вложенных папок нет</i> </string>
+    <string name="launch_timer">Запуск слайд-шоу по таймеру</string>
+    <string name="stop_timer">Остановка слайд-шоу по таймеру</string>
+    <string name="launch_booted">Запуск слайд-шоу по окончанию загрузки</string>
+    <string name="launch_power_on">Запуск слайд-шоу по началу зарядки</string>
+    <string name="launch_power_off">Остановка слайд-шоу по окончанию зарядки</string>
 
 </resources>

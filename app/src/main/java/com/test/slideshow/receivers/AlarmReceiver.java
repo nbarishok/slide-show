@@ -24,9 +24,9 @@ import java.util.Calendar;
  */
 public class AlarmReceiver extends BroadcastReceiver {
         public static final String ALARM_CUSTOM_ACTION = "com.test.slideshow.receivers.OnAlarmReceiver.ALARM_CUSTOM_ACTION";
-    public static final String ALARM_MANAGER_KEY = "com.test.slideshow.receivers.OnAlarmReceiver.alarm_manager_key"; //value of 1 means it's time to start slideshow
+    public static final String ALARM_MANAGER_KEY = "com.test.slideshow.receivers.OnAlarmReceiver.alarm_manager_key"; //value of 1 means it's time to start slideshow, value of -1 -- stop
     public static final String BOOT_COMPETED_KEY = "com.test.slideshow.receivers.OnAlarmReceiver.boot_completed_key";
-    //value of -1 -- stop
+
 
     public static final String TIMESTAMP_KEY = "com.test.slideshow.receivers.OnAlarmReceiver.TIMESTAMP_KEY";
 

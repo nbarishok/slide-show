@@ -29,7 +29,7 @@ public class LoadImageUrisFromSDCard extends AsyncTask<QueryViewModel, Object, A
     @Override
     protected ArrayList<String> doInBackground(QueryViewModel... params) {
         QueryViewModel vm = params[0];
-        String formedArg = new StringBuilder().append("%").append(vm.getFolder()).append("%").toString();
+        String formedArg = "%" + vm.getFolder() + "%";
         String[] projection = {MediaStore.Images.Media.DATA};
         String[] selection = new String[]{ formedArg };
 

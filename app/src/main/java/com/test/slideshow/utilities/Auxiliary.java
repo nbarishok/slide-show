@@ -38,7 +38,7 @@ public class Auxiliary {
     }
 
     private static boolean isExternalStorageAvailable(){
-        boolean mExternalStorageAvailable = false;
+        boolean mExternalStorageAvailable;
         String state = Environment.getExternalStorageState();
 
         if (Environment.MEDIA_MOUNTED.equals(state)) {
@@ -57,9 +57,6 @@ public class Auxiliary {
     }
 
     public static boolean checkStorageAvailable(Context context){
-        if (Prefs.isExternalDirNow(context) && !Auxiliary.isExternalStorageAvailable()) {
-            return false;
-        }
-        return true;
+        return !(Prefs.isExternalDirNow(context) && !Auxiliary.isExternalStorageAvailable());
     }
 }

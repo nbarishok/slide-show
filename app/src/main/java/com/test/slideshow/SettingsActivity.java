@@ -3,7 +3,6 @@ package com.test.slideshow;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.CheckBoxPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
@@ -33,7 +32,7 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
         super.onCreate(savedInstanceState);
         if (savedInstanceState != null){
             mLastIntervalValue = savedInstanceState.getInt(INTERVAL_KEY);
-            mStorageTypeChanged = savedInstanceState.getInt(STORAGE_KEY) == 1 ? true : false;
+            mStorageTypeChanged = savedInstanceState.getInt(STORAGE_KEY) == 1;
         }
 
         addPreferencesFromResource(R.xml.preferences);
@@ -102,7 +101,7 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
         if (mLastIntervalValue != -1)
             returnIntent.putExtra(INTERVAL_CHANGE_KEY,mLastIntervalValue);
         if (mStorageTypeChanged)
-            returnIntent.putExtra(STORAGE_CHANGE_KEY, mStorageTypeChanged);
+            returnIntent.putExtra(STORAGE_CHANGE_KEY, true);
         setResult(RESULT_OK,returnIntent);
         finish();
     }
