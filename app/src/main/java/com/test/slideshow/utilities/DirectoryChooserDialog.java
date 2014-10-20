@@ -16,10 +16,8 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.DialogInterface.OnKeyListener;
 import android.database.Cursor;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.Environment;
-import android.provider.CalendarContract;
 import android.provider.MediaStore;
 import android.text.Editable;
 import android.view.Gravity;
@@ -47,12 +45,9 @@ public class DirectoryChooserDialog
 
     private String mDir = "";
     private List<DirModel> mSubdirs = null;
-    private ChosenDirectoryListener m_chosenDirectoryListener = null;
+    private ChosenDirectoryListener mChosenDirectoryListener = null;
     private ArrayAdapter<DirModel> mListAdapter = null;
 
-    //////////////////////////////////////////////////////
-    // Callback interface for selected directory
-    //////////////////////////////////////////////////////
     public interface ChosenDirectoryListener
     {
         public void onChosenDir(String chosenDir);
@@ -62,7 +57,7 @@ public class DirectoryChooserDialog
     {
         mContext = context;
         mSdcardDirectory = Environment.getExternalStorageDirectory().getAbsolutePath();
-        m_chosenDirectoryListener = chosenDirectoryListener;
+        mChosenDirectoryListener = chosenDirectoryListener;
 
         try
         {
@@ -77,7 +72,7 @@ public class DirectoryChooserDialog
     {
         mContext = context;
         mSdcardDirectory = rootDir;//Environment.getExternalStorageDirectory().getAbsolutePath();
-        m_chosenDirectoryListener = chosenDirectoryListener;
+        mChosenDirectoryListener = chosenDirectoryListener;
 
         try
         {
@@ -146,10 +141,10 @@ public class DirectoryChooserDialog
             public void onClick(DialogInterface dialog, int which)
             {
                 // Current directory chosen
-                if (m_chosenDirectoryListener != null)
+                if (mChosenDirectoryListener != null)
                 {
                     // Call registered listener supplied with the chosen directory
-                    m_chosenDirectoryListener.onChosenDir(mDir);
+                    mChosenDirectoryListener.onChosenDir(mDir);
                 }
             }
         }).setNegativeButton("Cancel", null);

@@ -80,7 +80,6 @@ public class SlideShowActivity extends Activity {
         if (getIntent() != null){
             handleIntent(getIntent());
         }
-        //Prefs.setIsInited(this, false, null);
         if (!Prefs.getIsInited(this)){
             String resultDir = Auxiliary.initInternalDir();
             if (resultDir != null) {
@@ -234,7 +233,7 @@ public class SlideShowActivity extends Activity {
     };
 
     private View.OnClickListener dirsListener = new View.OnClickListener() {
-        private String m_chosenDir = "";
+        private String mChosenDir = "";
 
         @Override
         public void onClick(View v) {
@@ -261,9 +260,9 @@ public class SlideShowActivity extends Activity {
                             });
             // Toggle new folder button enabling
             directoryChooserDialog.setNewFolderEnabled(false);
-            // Load directory chooser dialog for initial 'm_chosenDir' directory.
+            // Load directory chooser dialog for initial 'mChosenDir' directory.
             // The registered callback will be called upon final directory selection.
-            directoryChooserDialog.chooseDirectory(m_chosenDir);
+            directoryChooserDialog.chooseDirectory(mChosenDir);
         }
     };
 
@@ -281,8 +280,6 @@ public class SlideShowActivity extends Activity {
                 mSlideShow.setTag(aTag);
                 task.execute(new LoadBitmapViewModel( uri, mIvHeight, mIvWidth));
 
-
-            //new AsyncLoadBitmap(FullscreenActivity.this, mSlideShow).execute(new LoadBitmapViewModel( uri, mIvHeight, mIvWidth));
                 if (mCurrentIndex == mUris.size()-1)
                     mCurrentIndex = 0;
                 else mCurrentIndex++;
@@ -421,6 +418,7 @@ public class SlideShowActivity extends Activity {
 
     private void handleIntent(Intent intent){
 
+        //handling case when app is being launched from history
         boolean launchedFromHistory = intent != null ? (intent.getFlags() & Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY) != 0 : false;
         if (launchedFromHistory) return;
 

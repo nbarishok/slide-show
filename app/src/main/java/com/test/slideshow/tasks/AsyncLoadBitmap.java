@@ -92,7 +92,6 @@ public class AsyncLoadBitmap extends AsyncTask<LoadBitmapViewModel, Object, Bitm
 
     @Override
     protected void onPostExecute(Bitmap result) {
-        //mContext.onBitmapReceived(result, mException);
 
         if (isCancelled()){
             result = null;
@@ -102,7 +101,6 @@ public class AsyncLoadBitmap extends AsyncTask<LoadBitmapViewModel, Object, Bitm
             final ImageView imageView = mImageViewReference.get();
             final AsyncLoadBitmap task = getBitmapWorkerTask(imageView);
             if (this == task && imageView != null) {
-                //imageView.setImageBitmap(result);
                 final Bitmap finalResult = result;
 
                 AnimUtils.backportPostAnimation(AnimUtils.hardwareAlpha(imageView, 0), imageView, new Runnable() {
@@ -112,16 +110,6 @@ public class AsyncLoadBitmap extends AsyncTask<LoadBitmapViewModel, Object, Bitm
                                 AnimUtils.hardwareAlpha(imageView, 1);
                             }
                         });
-
-                        /*imageView.animate().alpha(0).setDuration(400).setInterpolator(new AccelerateInterpolator()).withEndAction(new Runnable() {
-                            @Override
-                            public void run() {
-                                imageView.setImageBitmap(finalResult);
-                                imageView.animate().alpha(1).setDuration(400).setInterpolator(new DecelerateInterpolator());
-                            }
-                        });*/
-
-
                 imageView.setTag(null);
             }
         }
