@@ -37,8 +37,6 @@ public class IntEditTextPreference extends EditTextPreference {
         if (positiveResult) {
             String tmp = getText();
 
-            //int val = Integer.valueOf(tmp);
-
             persistString(tmp);
 
         }

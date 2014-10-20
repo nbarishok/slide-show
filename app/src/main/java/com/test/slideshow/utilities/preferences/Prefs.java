@@ -16,10 +16,6 @@ import java.util.Date;
  * Created by Nikita on 17.10.2014.
  */
 public class Prefs {
-
-
-
-    public static final String PREFS_ROOT = "ROOT";
     public static final String PREFS_EXT_DIR = "DIR_KEY_EXT";
     public static final String PREFS_INT_DIR = "DIR_KEY_INT";
 
@@ -67,7 +63,6 @@ public class Prefs {
         Boolean isExtUsed = prefs.getBoolean(context.getString(R.string.ext_dir_key), true);
         editor.putString(isExtUsed ? PREFS_EXT_DIR : PREFS_INT_DIR, newDir);
 
-        // Commit the edits!
         editor.commit();
     }
 
