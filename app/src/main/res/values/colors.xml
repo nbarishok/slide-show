@@ -1,0 +1,7 @@
+<resources>
+    <color name="white_overlay">#fff6f6f6</color>
+    <color name="black_overlay">#ff535353</color>
+    <color name="background">#c60c31</color>
+    <color name="background_brighter">#ffff4a74</color>
+    <color name="background_darker">#ffaa0534</color>
+</resources>

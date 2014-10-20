@@ -1,0 +1,35 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background"
+    tools:context=".FullscreenActivity">
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" android:id="@+id/iv_slideshow" android:scaleType="centerInside"/>
+    <LinearLayout android:background="@android:color/black"
+        android:layout_width="match_parent" android:id="@+id/ll_top"
+        android:layout_height="wrap_content" android:layout_gravity="top" android:gravity="right" android:visibility="visible">
+
+        <!--dir_chooser available only while slideshow isnt started-->
+        <ImageView android:id="@+id/dir_chooser"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:src="@drawable/ic_action_view_as_list" android:padding="5dp" />
+        <ImageView android:id="@+id/settings"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:src="@drawable/ic_action_settings" android:padding="5dp" />
+
+        </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent" android:id="@+id/ll_bottom" android:background="@color/background_darker"
+        android:layout_height="wrap_content" android:layout_gravity="bottom" android:gravity="center_vertical" android:orientation="horizontal">
+        <TextView
+            android:layout_width="0dp" android:id="@+id/tv_folder_name"
+            android:layout_height="wrap_content" android:layout_weight="1" android:text="@string/current_dir_title"  style="@style/textview_base" />
+        <ImageView android:src="@drawable/ic_action_slideshow"
+            android:layout_width="wrap_content" android:layout_gravity="center"
+            android:layout_height="wrap_content" android:padding="30dp" android:id="@+id/btn" android:tag="@string/do_slide"/>
+        </LinearLayout>
+
+</FrameLayout>

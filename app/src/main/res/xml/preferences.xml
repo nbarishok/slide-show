@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <CheckBoxPreference android:key="@string/ext_dir_key" android:title="Использовать внешнюю память"
+        android:defaultValue="true"
+        android:summaryOff="Используется внутренняя память" android:summaryOn="Используется внешняя память" />
+    <com.test.slideshow.utilities.preferences.IntEditTextPreference
+        android:key="@string/interval_key"
+        android:title="Итервал обновления" android:defaultValue="5"
+        android:numeric="integer"
+        android:maxLength="2"
+        android:summary="Введите число от 1 до 60"
+        />
+    <com.test.slideshow.utilities.preferences.TimePreference
+        android:key="@string/start_time_key"
+        android:title="Время запуска слайд-шоу"
+        android:defaultValue="12:00"
+        android:summary="Выберите желаемое время" />
+    <com.test.slideshow.utilities.preferences.TimePreference
+        android:key="@string/end_time_key"
+        android:title="Время остановки слайд-шоу"
+        android:defaultValue="13:00"
+        android:summary="Выберите желаемое время" />
+</PreferenceScreen>

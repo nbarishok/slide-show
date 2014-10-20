@@ -1,0 +1,17 @@
+#ignore following files:
+
+.gradle
+/local.properties
+/.idea/workspace.xml
+/.idea/libraries
+.DS_Store
+/build
+
+
+.git/
+.idea/
+gen/
+app/build/
+!app/build//outputs/apk/*
+
+local.properties

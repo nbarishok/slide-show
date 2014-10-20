@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Theme.Base.AppCompat.Light.NoActionBar" parent="Theme.Base.AppCompat.Light">
+        <item name="android:windowNoTitle">true</item>
+        <item name="windowActionBar">false</item> <!-- For 2.x version  -->
+    </style>
+
+    <style name="textview_base">
+        <item name="android:paddingLeft">@dimen/padding_base</item>
+        <item name="android:paddingRight">@dimen/padding_base</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:textColor">@android:color/white</item>
+
+    </style>
+
+</resources>
