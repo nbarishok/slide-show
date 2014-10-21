@@ -14,6 +14,8 @@ import java.lang.ref.WeakReference;
 
 /**
  * Created by Nikita on 18.10.2014.
+ *
+ * THIS SOLUTION IS NOW REPLACED BY AsyncBitmapLoader class
  */
 public class AsyncLoadBitmap extends AsyncTask<LoadBitmapViewModel, Object, Bitmap> {
 
@@ -49,16 +51,12 @@ public class AsyncLoadBitmap extends AsyncTask<LoadBitmapViewModel, Object, Bitm
             int imageHeight = options.outHeight;
             int imageWidth = options.outWidth;
 
-            ImageView iv = mImageViewReference.get();
-            if (iv != null){
-                int sampleSize = getSampleSize(iv.getHeight(), iv.getWidth(), imageHeight, imageWidth);
-                options.inSampleSize = sampleSize;
+            int sampleSize = getSampleSize(vm.getHeight(), vm.getWidth(), imageHeight, imageWidth);
+            options.inSampleSize = sampleSize;
 
-                options.inJustDecodeBounds = false;
-                bitmap = BitmapFactory.decodeFile(vm.getUriString(), options);
-            }
-            else
-                bitmap = null;
+            options.inJustDecodeBounds = false;
+            bitmap = BitmapFactory.decodeFile(vm.getUriString(), options);
+
         }
         catch (Exception e) {
             //Try to recover
@@ -71,7 +69,7 @@ public class AsyncLoadBitmap extends AsyncTask<LoadBitmapViewModel, Object, Bitm
         return bitmap;
     }
 
-    private int getSampleSize(int height, int width, int imageHeight, int imageWidth) {
+    public static int getSampleSize(int height, int width, int imageHeight, int imageWidth) {
         int result =1 ;
         if (imageHeight > height || imageWidth > width) {
 

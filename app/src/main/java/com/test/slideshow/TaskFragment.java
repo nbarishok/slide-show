@@ -38,9 +38,14 @@ public class TaskFragment extends Fragment {
         super.onAttach(activity);
         listener = (AsyncListener<List<String>>)activity;
     }
+
     public void onDetach() {
         super.onDetach();
-        listener = null;
+        releaseListener();
+    }
+
+    public void releaseListener(){
+        listener  = null;
     }
 
     class LoadImageUrisFromSDCard extends AsyncTask<QueryViewModel, Object, ArrayList<String>> {

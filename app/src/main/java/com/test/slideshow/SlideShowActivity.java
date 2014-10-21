@@ -2,7 +2,6 @@ package com.test.slideshow;
 
 
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -10,6 +9,9 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.Loader;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -21,6 +23,7 @@ import com.test.slideshow.animations.AnimUtils;
 import com.test.slideshow.models.LoadBitmapViewModel;
 import com.test.slideshow.receivers.AlarmReceiver;
 import com.test.slideshow.receivers.ChargingReceiver;
+import com.test.slideshow.tasks.AsyncBitmapLoader;
 import com.test.slideshow.tasks.AsyncListener;
 import com.test.slideshow.tasks.AsyncLoadBitmap;
 import com.test.slideshow.models.AsyncTag;
@@ -29,13 +32,13 @@ import com.test.slideshow.utilities.DirectoryChooserDialog;
 import com.test.slideshow.utilities.preferences.Prefs;
 
 import java.util.ArrayList;
-import java.util.List;
 
 
 /**
 
  */
-public class SlideShowActivity extends FragmentActivity implements AsyncListener<List<String>> {
+public class SlideShowActivity extends FragmentActivity implements AsyncListener<ArrayList<String>>,
+        LoaderManager.LoaderCallbacks<AsyncBitmapLoader.BitmapWrapper> {
 
     private boolean mForceStartShow = false;
     private boolean mForceStopShow = false;
@@ -54,7 +57,10 @@ public class SlideShowActivity extends FragmentActivity implements AsyncListener
     private static final String INTERVAL_KEY = "com.test.slideshow.FullscreenActivity.intervalkey";
     private static final String STATE_KEY = "com.test.slideshow.FullscreenActivity.statekey";
     private static final String URIARRAY_KEY = "com.test.slideshow.FullscreenActivity.uriarraykey";
+    private static final String INDEX_KEY = "com.test.slideshow.FullscreenActivity.indexkey";
     private static final String TIMESTAMP_KEY = "com.test.slideshow.FullscreenActivity.timestampkey";
+
+    private static final int LOADER_ID = 1;
 
     private ImageView mDirsChooser;
     private ImageView mSettingsLauncher;
@@ -69,11 +75,9 @@ public class SlideShowActivity extends FragmentActivity implements AsyncListener
 
 
     private int mCurrentInterval; //persisted in sharedpreferences
-    private int mCurrentIndex=0; // -> in bundle
+    private int mCurrentIndex = 0; // -> in bundle
 
-    private List<String> mUris = null; // -> in bundle
-
-    private int mIvWidth, mIvHeight;
+    private ArrayList<String> mUris = null; // -> in bundle
 
     Handler timerHandler = new Handler();
     private boolean mDetachPending = false;
@@ -99,6 +103,7 @@ public class SlideShowActivity extends FragmentActivity implements AsyncListener
             mCurrentInterval = savedInstanceState.getInt(INTERVAL_KEY);
             mSlideShowState = savedInstanceState.getInt(STATE_KEY);
             mUris = savedInstanceState.getStringArrayList(URIARRAY_KEY);
+            mCurrentIndex = savedInstanceState.getInt(INDEX_KEY);
             mTimestamp = savedInstanceState.getLong(TIMESTAMP_KEY);
         }
         else {
@@ -159,8 +164,6 @@ public class SlideShowActivity extends FragmentActivity implements AsyncListener
             loadImageUris();
         else
             resumeSlideShow();
-        mIvHeight = mSlideShow.getMeasuredHeight();
-        mIvWidth = mSlideShow.getMeasuredWidth();
     }
 
     @Override
@@ -192,6 +195,8 @@ public class SlideShowActivity extends FragmentActivity implements AsyncListener
         out.putInt(INTERVAL_KEY, mCurrentInterval);
         out.putInt(STATE_KEY, mSlideShowState);
         out.putLong(TIMESTAMP_KEY, mTimestamp);
+        out.putInt(INDEX_KEY, mCurrentIndex);
+        out.putStringArrayList(URIARRAY_KEY, mUris);
         super.onSaveInstanceState(out);
     }
 
@@ -279,29 +284,49 @@ public class SlideShowActivity extends FragmentActivity implements AsyncListener
         }
     };
 
+    private static final String LOADER_DATA = "loader_data";
     Runnable timerRunnable = new Runnable() {
 
         @Override
         public void run() {
-            //update image view with new image from File System
-            //wait for specified time to run a new cycle
-            String uri = mUris.get(mCurrentIndex);
-            if (AsyncLoadBitmap.cancelPotentialWork(uri, mSlideShow)) {
-                final AsyncLoadBitmap task = new AsyncLoadBitmap(SlideShowActivity.this, mSlideShow);
-                final AsyncTag aTag =
-                        new AsyncTag(uri, task);
-                mSlideShow.setTag(aTag);
-                task.execute(new LoadBitmapViewModel( uri, mIvHeight, mIvWidth));
-
-                if (mCurrentIndex == mUris.size()-1)
-                    mCurrentIndex = 0;
-                else mCurrentIndex++;
-
-                timerHandler.postDelayed(timerRunnable, mCurrentInterval * 1000);
-            }
+            if (IS_LOADER_USED)
+                asyncTaskLoaderImpl();
+            else
+                asyncTaskImpl();
         }
     };
 
+    private static final boolean IS_LOADER_USED = true;
+
+    private void asyncTaskImpl(){
+        String uri = mUris.get(mCurrentIndex);
+        if (AsyncLoadBitmap.cancelPotentialWork(uri, mSlideShow)) {
+            final AsyncLoadBitmap task = new AsyncLoadBitmap(SlideShowActivity.this, mSlideShow);
+            final AsyncTag aTag =
+                    new AsyncTag(uri, task);
+            mSlideShow.setTag(aTag);
+            task.execute(new LoadBitmapViewModel( uri, mSlideShow.getHeight(), mSlideShow.getWidth()));
+
+            if (mCurrentIndex == mUris.size()-1)
+                mCurrentIndex = 0;
+            else mCurrentIndex++;
+
+            timerHandler.postDelayed(timerRunnable, mCurrentInterval * 1000);
+        }
+    }
+
+    private void asyncTaskLoaderImpl(){
+        String uri = mUris.get(mCurrentIndex);
+        Bundle args = new Bundle();
+        args.putParcelable(LOADER_DATA, new LoadBitmapViewModel( uri, mSlideShow.getHeight(), mSlideShow.getWidth()) );
+        getSupportLoaderManager().restartLoader(LOADER_ID, args, SlideShowActivity.this);
+
+        if (mCurrentIndex == mUris.size()-1)
+            mCurrentIndex = 0;
+        else mCurrentIndex++;
+
+        timerHandler.postDelayed(timerRunnable, mCurrentInterval * 1000);
+    }
     //TODO refactor.. slide show actions can be encapsulated with State pattern (Uninitialized, Running, Stopped, Paused)
     private void startSlideShow(){
         if (mSlideShowState == SLIDE_SHOW_RUNNING){
@@ -413,7 +438,7 @@ public class SlideShowActivity extends FragmentActivity implements AsyncListener
         AnimUtils.hardwareTranslationYOrigin(viewGroup);
     }
 
-    public void onLoadedUris(List<String> res, Exception ex){
+    public void onLoadedUris(ArrayList<String> res, Exception ex){
         if (ex != null)
         {
             //TODO add adequate logic
@@ -495,19 +520,51 @@ public class SlideShowActivity extends FragmentActivity implements AsyncListener
     }
 
     @Override
-    public void onPostExecute(List<String> strings, Exception exception) {
+    public void onPostExecute(ArrayList<String> strings, Exception exception) {
         onLoadedUris(strings, exception);
-        if (IS_ACTIVE){
-            detachTask();
-        }
-        else mDetachPending = true;
+        detachTask();
         resumeSlideShow();
     }
 
     private void detachTask(){
         FragmentManager fm = getSupportFragmentManager();
         Fragment fragment = fm.findFragmentByTag("task");
-        fm.beginTransaction().remove(fragment).commit();
+        if (IS_ACTIVE)
+            fm.beginTransaction().remove(fragment).commit();
+        else{
+            if (fragment != null){
+                ((TaskFragment)fragment).releaseListener();
+                mDetachPending = true;
+            }
+        }
         mDetachPending = false;
+    }
+
+    @Override
+    public Loader<AsyncBitmapLoader.BitmapWrapper> onCreateLoader(int i, Bundle bundle) {
+        LoadBitmapViewModel data = bundle.getParcelable(LOADER_DATA);
+        return new AsyncBitmapLoader(getApplicationContext(), data );
+    }
+
+    @Override
+    public void onLoadFinished(Loader<AsyncBitmapLoader.BitmapWrapper> bitmapWrapperLoader, final AsyncBitmapLoader.BitmapWrapper wrapper) {
+        if (wrapper.getException() != null){
+            Toast.makeText(this, "Ошибка во время получения изображения", Toast.LENGTH_SHORT).show();
+            Log.e("LOADER_ERROR", wrapper.getException().getMessage());
+        }
+        else{
+            AnimUtils.backportPostAnimation(AnimUtils.hardwareAlpha(mSlideShow, 0), mSlideShow, new Runnable() {
+                @Override
+                public void run() {
+                    mSlideShow.setImageBitmap(wrapper.getBitmap());
+                    AnimUtils.hardwareAlpha(mSlideShow, 1);
+                }
+            });
+        }
+    }
+
+    @Override
+    public void onLoaderReset(Loader<AsyncBitmapLoader.BitmapWrapper> bitmapWrapperLoader) {
+        mSlideShow.setImageBitmap(null);
     }
 }
